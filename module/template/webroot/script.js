@@ -7,8 +7,15 @@ let settings = {
     shamiko: true,
     trickyStore: true,
     zygisk: true,
+    zygiskNext: true,
     whitelistMode: false,
-    securityPatch: ''
+    securityPatch: '',
+    hideMagiskPolicy: true,
+    hideSuBinary: true,
+    hideMagiskModules: true,
+    fixMountInconsistency: true,
+    hideLSPosed: true,
+    hideLineageOS: true
 };
 
 // DOM elements
@@ -28,8 +35,17 @@ const tabContents = document.querySelectorAll('.tab-content');
 const shamikoToggle = document.getElementById('shamiko-toggle');
 const trickyStoreToggle = document.getElementById('trickystore-toggle');
 const zygiskToggle = document.getElementById('zygisk-toggle');
+const zygiskNextToggle = document.getElementById('zygisk-next-toggle');
 const whitelistToggle = document.getElementById('whitelist-toggle');
 const securityPatchInput = document.getElementById('security-patch');
+
+// Anti-detection settings elements
+const hideMagiskPolicyToggle = document.getElementById('hide-magiskpolicy-toggle');
+const hideSuToggle = document.getElementById('hide-su-toggle');
+const hideModulesToggle = document.getElementById('hide-modules-toggle');
+const fixMountToggle = document.getElementById('fix-mount-toggle');
+const hideLSPosedToggle = document.getElementById('hide-lsposed-toggle');
+const hideLineageOSToggle = document.getElementById('hide-lineageos-toggle');
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,8 +84,17 @@ document.addEventListener('DOMContentLoaded', () => {
     shamikoToggle.addEventListener('change', updateSettings);
     trickyStoreToggle.addEventListener('change', updateSettings);
     zygiskToggle.addEventListener('change', updateSettings);
+    zygiskNextToggle.addEventListener('change', updateSettings);
     whitelistToggle.addEventListener('change', updateSettings);
     securityPatchInput.addEventListener('change', updateSettings);
+    
+    // Anti-detection settings event listeners
+    hideMagiskPolicyToggle.addEventListener('change', updateSettings);
+    hideSuToggle.addEventListener('change', updateSettings);
+    hideModulesToggle.addEventListener('change', updateSettings);
+    fixMountToggle.addEventListener('change', updateSettings);
+    hideLSPosedToggle.addEventListener('change', updateSettings);
+    hideLineageOSToggle.addEventListener('change', updateSettings);
 });
 
 // Load the list of installed apps
@@ -320,8 +345,17 @@ function updateSettings() {
     settings.shamiko = shamikoToggle.checked;
     settings.trickyStore = trickyStoreToggle.checked;
     settings.zygisk = zygiskToggle.checked;
+    settings.zygiskNext = zygiskNextToggle.checked;
     settings.whitelistMode = whitelistToggle.checked;
     settings.securityPatch = securityPatchInput.value.trim();
+    
+    // Update anti-detection settings
+    settings.hideMagiskPolicy = hideMagiskPolicyToggle.checked;
+    settings.hideSuBinary = hideSuToggle.checked;
+    settings.hideMagiskModules = hideModulesToggle.checked;
+    settings.fixMountInconsistency = fixMountToggle.checked;
+    settings.hideLSPosed = hideLSPosedToggle.checked;
+    settings.hideLineageOS = hideLineageOSToggle.checked;
 }
 
 // Save the configuration
@@ -402,8 +436,15 @@ async function saveSettings() {
             `shamiko=${settings.shamiko}`,
             `trickyStore=${settings.trickyStore}`,
             `zygisk=${settings.zygisk}`,
+            `zygiskNext=${settings.zygiskNext}`,
             `whitelistMode=${settings.whitelistMode}`,
-            `securityPatch=${settings.securityPatch}`
+            `securityPatch=${settings.securityPatch}`,
+            `hideMagiskPolicy=${settings.hideMagiskPolicy}`,
+            `hideSuBinary=${settings.hideSuBinary}`,
+            `hideMagiskModules=${settings.hideMagiskModules}`,
+            `fixMountInconsistency=${settings.fixMountInconsistency}`,
+            `hideLSPosed=${settings.hideLSPosed}`,
+            `hideLineageOS=${settings.hideLineageOS}`
         ].join('\n');
         
         await exec(`echo '${settingsStr}' > /data/adb/enhanced-root-hiding/config/settings.txt`);
@@ -424,6 +465,33 @@ async function saveSettings() {
             await exec(`echo '${settings.securityPatch}' > /data/adb/tricky_store/security_patch.txt`);
         }
         
+        // Apply Zygisk Next settings if enabled
+        if (settings.zygiskNext) {
+            // Check if Zygisk Next is installed
+            const { errno: zygiskNextErrno } = await exec('[ -d /data/adb/modules/zygisksu ] && echo "exists"');
+            if (zygiskNextErrno !== 0) {
+                showStatus('Zygisk Next module not found. Please install it for better compatibility.', 'warning');
+            }
+        }
+        
+        // Apply anti-detection settings
+        // These settings will be read by the anti_detection.sh script
+        await exec('mkdir -p /data/adb/enhanced-root-hiding/config');
+        const antiDetectionSettings = [
+            `hide_magiskpolicy=${settings.hideMagiskPolicy}`,
+            `hide_su_binary=${settings.hideSuBinary}`,
+            `hide_magisk_modules=${settings.hideMagiskModules}`,
+            `fix_mount_inconsistency=${settings.fixMountInconsistency}`,
+            `hide_lsposed=${settings.hideLSPosed}`,
+            `hide_lineageos=${settings.hideLineageOS}`
+        ].join('\n');
+        
+        await exec(`echo '${antiDetectionSettings}' > /data/adb/enhanced-root-hiding/config/anti_detection.conf`);
+        
+        // Restart anti-detection script to apply new settings
+        await exec('pkill -f "anti_detection.sh" || true');
+        await exec('sh /data/adb/modules/enhanced-root-hiding/anti_detection.sh &');
+        
         // Show success message
         showStatus('Settings saved successfully!', 'success');
         toast('Settings saved successfully!');
@@ -439,16 +507,32 @@ function resetSettings() {
         shamiko: true,
         trickyStore: true,
         zygisk: true,
+        zygiskNext: true,
         whitelistMode: false,
-        securityPatch: ''
+        securityPatch: '',
+        hideMagiskPolicy: true,
+        hideSuBinary: true,
+        hideMagiskModules: true,
+        fixMountInconsistency: true,
+        hideLSPosed: true,
+        hideLineageOS: true
     };
     
     // Update UI
     shamikoToggle.checked = settings.shamiko;
     trickyStoreToggle.checked = settings.trickyStore;
     zygiskToggle.checked = settings.zygisk;
+    zygiskNextToggle.checked = settings.zygiskNext;
     whitelistToggle.checked = settings.whitelistMode;
     securityPatchInput.value = settings.securityPatch;
+    
+    // Update anti-detection UI
+    hideMagiskPolicyToggle.checked = settings.hideMagiskPolicy;
+    hideSuToggle.checked = settings.hideSuBinary;
+    hideModulesToggle.checked = settings.hideMagiskModules;
+    fixMountToggle.checked = settings.fixMountInconsistency;
+    hideLSPosedToggle.checked = settings.hideLSPosed;
+    hideLineageOSToggle.checked = settings.hideLineageOS;
     
     showStatus('Settings reset to defaults. Click Save Settings to apply.', 'success');
 }
