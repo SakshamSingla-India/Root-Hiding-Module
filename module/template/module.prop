@@ -3,4 +3,6 @@ name=Enhanced Root Hiding
 version=v1.0.0
 versionCode=1
 author=Saksham
-description=Enhanced root hiding module combining Shamiko, TrickyStore, and Zygisk functionality with a web UI
+description=Enhanced root hiding module combining Shamiko, TrickyStore, Zygisk, and Zygisk Next functionality with a web UI
+website=https://github.com/SakshamSingla-India/Root-Hiding-Module
+updateJson=https://raw.githubusercontent.com/SakshamSingla-India/Root-Hiding-Module/main/update.json
