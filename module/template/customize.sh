@@ -3,17 +3,47 @@
 
 MODDIR=${0%/*}
 
-# Ensure Zygisk is enabled
-if [ -z "$(magisk --path)" ]; then
-  ui_print "- Magisk installation not found"
-  abort "! Please install Magisk first"
-fi
+# Check for Zygisk availability (either built-in or Zygisk Next)
+check_zygisk() {
+  local ZYGISK_MODULE="/data/adb/modules/zygisksu"
+  local MAGISK_DIR="/data/adb/magisk"
+  local ZYGISK_MSG="Zygisk is not enabled. Please either:
+  - Enable Zygisk in Magisk settings
+  - Install ZygiskNext module"
 
-if ! magisk --path | grep -q "zygisk"; then
-  ui_print "! Zygisk is not enabled"
-  ui_print "! Please enable Zygisk in Magisk settings and reboot"
-  abort
-fi
+  # Check if Zygisk Next module directory exists
+  if [ -d "$ZYGISK_MODULE" ]; then
+    ui_print "- Zygisk Next detected"
+    return 0
+  fi
+
+  # If Magisk is installed, check Zygisk settings
+  if [ -d "$MAGISK_DIR" ]; then
+    # Check if Zygisk is enabled in Magisk
+    if magisk --path | grep -q "zygisk"; then
+      ui_print "- Magisk Zygisk detected"
+      return 0
+    else
+      ui_print "$ZYGISK_MSG"
+      abort
+    fi
+  else
+    ui_print "- Magisk installation not found"
+    ui_print "- Checking for alternative root solutions..."
+    
+    # Check for KernelSU with Zygisk Next
+    if [ -d "$ZYGISK_MODULE" ]; then
+      ui_print "- KernelSU with Zygisk Next detected"
+      return 0
+    else
+      ui_print "$ZYGISK_MSG"
+      abort
+    fi
+  fi
+}
+
+# Verify Zygisk availability
+check_zygisk
 
 # Create necessary directories
 mkdir -p /data/adb/enhanced-root-hiding
@@ -37,18 +67,20 @@ else
   ui_print "- For best results, please install Shamiko module"
 fi
 
-# Check for Zygisk Next
+# Configure for the detected Zygisk implementation
 if [ -d /data/adb/modules/zygisksu ]; then
-  ui_print "- Zygisk Next module detected"
-  ui_print "- Will use Zygisk Next for additional compatibility"
+  ui_print "- Configuring for Zygisk Next compatibility"
+  # Create symbolic links or copy necessary files if needed
+  if [ -f /data/adb/zygisksu/zygiskd ]; then
+    ui_print "- Integrating with existing Zygisk Next installation"
+  fi
 else
-  ui_print "- Zygisk Next not detected"
-  ui_print "- Using standard Zygisk implementation"
-fi
-
-# Copy Zygisk Next files if needed
-if [ -f /data/adb/zygisksu/zygiskd ]; then
-  ui_print "- Integrating with existing Zygisk Next installation"
+  # Check if standard Magisk Zygisk is enabled
+  if magisk --path | grep -q "zygisk"; then
+    ui_print "- Configuring for standard Magisk Zygisk"
+    # Ensure compatibility with built-in Zygisk
+    touch "$MODPATH/.zygisk-enabled"
+  fi
 fi
 
 ui_print "- Installation completed"

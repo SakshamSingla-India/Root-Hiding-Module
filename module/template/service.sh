@@ -30,7 +30,24 @@ fi
 # Set up Shamiko configuration
 if [ -d /data/adb/modules/shamiko ]; then
   # Ensure denylist enforcement is disabled for Shamiko to work
-  magisk --denylist disable
+  if [ -x "$(command -v magisk)" ]; then
+    magisk --denylist disable
+  fi
+fi
+
+# Ensure Zygisk compatibility
+if [ -d /data/adb/modules/zygisksu ]; then
+  # For Zygisk Next compatibility
+  echo "Using Zygisk Next for module functionality" >> /data/adb/enhanced-root-hiding/logs/service.log
+  # Make sure our module is recognized by Zygisk Next
+  touch "$MODDIR/.zygisk-enabled"
+else
+  # For built-in Zygisk compatibility
+  if [ -x "$(command -v magisk)" ] && magisk --path | grep -q "zygisk"; then
+    echo "Using built-in Zygisk for module functionality" >> /data/adb/enhanced-root-hiding/logs/service.log
+    # Ensure our module is recognized by built-in Zygisk
+    touch "$MODDIR/.zygisk-enabled"
+  fi
 fi
 
 # Log that our service has started

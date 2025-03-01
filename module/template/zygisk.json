@@ -4,5 +4,6 @@
   "versionCode": 1,
   "author": "Saksham",
   "description": "Enhanced root hiding module combining Shamiko, TrickyStore, and Zygisk functionality with a web UI",
-  "api": 1
+  "api": 1,
+  "zygisk": true
 }
