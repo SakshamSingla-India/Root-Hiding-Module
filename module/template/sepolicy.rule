@@ -1,0 +1,30 @@
+type magisk_file file_type
+typeattribute magisk_file mlstrustedobject
+allow * magisk_file file *
+allow * magisk_file dir *
+allow * magisk_file fifo_file *
+allow * magisk_file chr_file *
+allow * magisk_file lnk_file *
+allow * magisk_file sock_file *
+
+# Allow execmem for zygote and system_server
+allow system_server system_server process execmem
+allow zygote zygote process execmem
+
+# Allow necessary permissions for zygote
+allow zygote adb_data_file dir search
+allow zygote mnt_vendor_file dir search
+allow zygote system_file dir mounton
+allow zygote labeledfs filesystem mount
+allow zygote fs_type filesystem unmount
+
+# Additional rules for LSPosed detection
+allow untrusted_app zygote unix_stream_socket getopt
+allow platform_app zygote unix_stream_socket getopt
+allow priv_app zygote unix_stream_socket getopt
+
+# Rules for mount inconsistency detection
+allow zygote proc_mounts file { read open getattr }
+allow untrusted_app proc_mounts file { read open getattr }
+allow platform_app proc_mounts file { read open getattr }
+allow priv_app proc_mounts file { read open getattr }

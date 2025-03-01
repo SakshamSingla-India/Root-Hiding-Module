@@ -1,0 +1,16 @@
+{
+  "name": "Enhanced Root Hiding",
+  "short_name": "Root Hiding",
+  "description": "Enhanced root hiding module combining Shamiko, TrickyStore, and Zygisk functionality",
+  "version": "1.0.0",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196F3",
+  "icons": [
+    {
+      "src": "assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
