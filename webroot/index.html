@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Root Hiding</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Enhanced Root Hiding</h1>
+            <p class="subtitle">Combining Shamiko, TrickyStore, and Zygisk</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="apps">Apps</button>
+            <button class="tab-btn" data-tab="settings">Settings</button>
+            <button class="tab-btn" data-tab="about">About</button>
+        </div>
+        
+        <div class="tab-content active" id="apps-tab">
+            <div class="info-box">
+                <p>Select apps you want to hide root from. These apps will be added to the denylist.</p>
+                <p class="warning">Remember: DO NOT enable Magisk's "Enforce DenyList" option when using Shamiko!</p>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search for apps...">
+            </div>
+            
+            <div class="app-list" id="app-list">
+                <!-- Apps will be loaded here dynamically -->
+                <div class="loading">Loading apps...</div>
+            </div>
+            
+            <div class="actions">
+                <button id="save-btn" class="primary-btn">Save Configuration</button>
+                <button id="refresh-btn">Refresh App List</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="settings-tab">
+            <div class="settings-section">
+                <h2>Root Hiding Methods</h2>
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="shamiko-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Shamiko</h3>
+                        <p>Hide Magisk root, Zygisk itself and Zygisk modules</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="trickystore-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>TrickyStore</h3>
+                        <p>Spoof device attestation for better SafetyNet/Play Integrity passing</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="zygisk-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Zygisk Module</h3>
+                        <p>Additional root hiding through Zygisk hooks</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="zygisk-next-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Zygisk Next</h3>
+                        <p>Use Zygisk Next implementation for better compatibility</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h2>Advanced Settings</h2>
+                <div class="setting-item">
+                    <label for="security-patch">Security Patch Level:</label>
+                    <input type="text" id="security-patch" placeholder="YYYYMMDD (e.g., 20241101)">
+                </div>
+                
+                <h3>Anti-Detection Settings</h3>
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="hide-magiskpolicy-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Hide Magisk Policy</h3>
+                        <p>Hide /bin/magiskpolicy from detection</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="hide-su-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Hide SU Binary</h3>
+                        <p>Hide /system/bin/su from detection</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="hide-modules-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Hide Magisk Modules</h3>
+                        <p>Hide detectable module files like liblspd.so</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="fix-mount-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Fix Mount Inconsistency</h3>
+                        <p>Hide mount inconsistencies in /proc/mounts</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="hide-lsposed-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Hide LSPosed</h3>
+                        <p>Hide LSPosed detection</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="hide-lineageos-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Hide LineageOS</h3>
+                        <p>Hide LineageOS detection</p>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="whitelist-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="setting-info">
+                        <h3>Whitelist Mode</h3>
+                        <p>Only allow selected apps to access root (Shamiko)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button id="save-settings-btn" class="primary-btn">Save Settings</button>
+                <button id="reset-settings-btn">Reset to Defaults</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="about-tab">
+            <div class="about-section">
+                <h2>Enhanced Root Hiding v1.0.0</h2>
+                <p>This module combines multiple root hiding technologies to provide the best protection against root detection:</p>
+                
+                <h3>Components:</h3>
+                <ul>
+                    <li><strong>Shamiko</strong> - Hides Magisk root, Zygisk itself and Zygisk modules</li>
+                    <li><strong>TrickyStore</strong> - Spoofs device attestation for better SafetyNet/Play Integrity passing</li>
+                    <li><strong>Zygisk Module</strong> - Provides additional root hiding through Zygisk hooks</li>
+                </ul>
+                
+                <h3>How It Works:</h3>
+                <p>The module uses a multi-layered approach to hide root from applications:</p>
+                <ol>
+                    <li>Shamiko reads the denylist from Magisk but requires denylist enforcement to be disabled</li>
+                    <li>TrickyStore spoofs hardware attestation for selected apps</li>
+                    <li>The Zygisk module provides additional hooks to hide root traces</li>
+                </ol>
+                
+                <h3>Credits:</h3>
+                <ul>
+                    <li>Shamiko developers</li>
+                    <li>TrickyStore by 5ec1cff</li>
+                    <li>Zygisk module template by 5ec1cff</li>
+                    <li>KernelSU team for the WebUI API</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
