@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1 (2025-03-01)
+
+### Fixed
+- Compatibility issues with both built-in Zygisk and Zygisk Next
+- Improved detection and configuration for different Zygisk implementations
+- Enhanced module recognition in both Magisk and KernelSU environments
+
 ## v1.0.0 (2025-03-01)
 
 ### Added
